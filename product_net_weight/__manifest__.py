@@ -6,6 +6,7 @@
     "summary": "Add 'Net Weight' on product models",
     "version": "17.0.1.0.0",
     "category": "Product",
+    "i18n": ["i18n/zh_CN.po"],
     "author": "GRAP,Odoo Community Association (OCA)",
     "maintainers": ["legalsylvain"],
     "website": "https://github.com/OCA/product-attribute",
@@ -21,5 +22,7 @@
     "images": [
         "static/description/product_product_form.png",
     ],
+    "external_dependencies": {"python": []},
     "installable": True,
+    "auto_install": False,
 }

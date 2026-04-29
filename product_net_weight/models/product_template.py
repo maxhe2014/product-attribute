@@ -20,18 +20,12 @@ class ProductTemplate(models.Model):
     # Explicit field, renaming it
     weight = fields.Float(string="Gross Weight")
 
-    @api.depends("product_variant_ids", "product_variant_ids.net_weight")
+    @api.depends("product_variant_ids.net_weight")
     def _compute_net_weight(self):
-        for template in self:
-            if template.product_variant_count == 1:
-                template.net_weight = template.product_variant_ids.net_weight
-            else:
-                template.net_weight = 0.0
+        self._compute_template_field_from_variant_field('net_weight')
 
     def _inverse_net_weight(self):
-        for template in self:
-            if len(template.product_variant_ids) == 1:
-                template.product_variant_ids.net_weight = template.net_weight
+        self._set_product_variant_field('net_weight')
 
     @api.model_create_multi
     def create(self, vals_list):
