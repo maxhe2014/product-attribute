@@ -25,7 +25,10 @@ class ProductTemplate(models.Model):
         self._compute_template_field_from_variant_field('net_weight')
 
     def _inverse_net_weight(self):
-        self._set_product_variant_field('net_weight')
+        for template in self:
+            variants = template.product_variant_ids
+            if len(variants) == 1:
+                variants.write({'net_weight': template.net_weight})
 
     @api.model_create_multi
     def create(self, vals_list):

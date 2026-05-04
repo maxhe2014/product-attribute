@@ -68,3 +68,44 @@ class TestProductNetWeight(TransactionCase):
             self.env["product.product"].create(
                 {"name": "Test net weight", "net_weight": 25.0, "weight": 22.0}
             )
+
+    def test_multi_variant_add_new_variant_preserves_net_weight(self):
+        product_form = Form(self.env["product.template"])
+        product_form.name = "Test Multi Variant"
+        product = product_form.save()
+
+        product.write({
+            "attribute_line_ids": [
+                (0, 0, {
+                    "attribute_id": self.attribute.id,
+                    "value_ids": [
+                        (0, 0, {"attribute_id": self.attribute.id, "name": "Value 1"}),
+                        (0, 0, {"attribute_id": self.attribute.id, "name": "Value 2"}),
+                    ],
+                })
+            ]
+        })
+
+        variants = product.product_variant_ids
+        variants[0].write({"net_weight": 10.0})
+        variants[1].write({"net_weight": 20.0})
+
+        self.assertEqual(variants[0].net_weight, 10.0)
+        self.assertEqual(variants[1].net_weight, 20.0)
+
+        product.write({
+            "attribute_line_ids": [
+                (1, product.attribute_line_ids.id, {
+                    "value_ids": [
+                        (4, self.env["product.attribute.value"].create(
+                            {"attribute_id": self.attribute.id, "name": "Value 3"}
+                        ).id),
+                    ],
+                })
+            ]
+        })
+
+        variants = product.product_variant_ids
+        self.assertEqual(variants[0].net_weight, 10.0)
+        self.assertEqual(variants[1].net_weight, 20.0)
+        self.assertEqual(variants[2].net_weight, 0.0)
